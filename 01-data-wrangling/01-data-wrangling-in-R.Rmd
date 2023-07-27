@@ -1,0 +1,146 @@
+---
+title: "Data wrangling in R"
+author: "James G. Hagan"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Overview
+
+This document is a tutorial with comprehensive explanations and instructions on how to use R for data analysis and data visualisation. The idea is for you to work through this document which involves reading explanations and running code blocks that execute different data analysis tasks. Working through and studying this document should give you the tools necessary to perform a range of useful data analysis and visualisation tasks in R.
+
+The document is very detailed and is meant to act as a reference manual for future R use as well. Whilst you probably will not be able to go through and understand every detail on the first pull, it is worth taking sufficient time to go through this document. 
+
+This teaching method quite substantially from the "live-coding" paradigm promoted by many software teaching organisations (e.g. data carpentry, software carpentry etc.). My experience with teaching bio-statistics in R for the last four years at MSc-level is that students prefer to work through coding problems in their own time. Following along and live-coding is more robotic than trying to work through material in my view.
+
+### Getting started
+
+Before we get started, we of course need to download the R statistical software (https://www.r-project.org/) and an appropriate IDE (integrated development environment to run R). Most R-users tend to run in R-studio IDE (https://posit.co/products/open-source/rstudio/) but feel free to use whatever IDE you want.
+
+Then, let's talk about *R-projects*. Using R-projects is simply a way to organise your files when doing a data-analysis project. I use it all the time and, if you get into version control (which you should but I don't have time to go into now), then these projects become crucial.
+
+You can read about all the details of R-projects (https://support.posit.co/hc/en-us/articles/200526207-Using-RStudio-Projects) but basically, when starting a new data analysis project, you make a folder on your computer e.g.: chap1_proj. Then, in the top-right of the screen, you need to select open project etc.
+
+### Focus of this workshop
+
+There are four main goals of this workshop:
+
++ 1. Learn the basics or R i.e. how the language works, how to import data, install packages etc.
+
++ 2. Get an overview of how to work with data in R i.e. manipulate, create new variables, subset etc. (also known as data wrangling)
+
++ 3. Learn how to summarise data into statistical parameters
+
++ 4. Learn how visualise data effectively and efficiently in order to draw conclusions from it
+
+To achieve these goals, we will focus on a simple data science workflow promoted by Wickham et al. (2023) in their excellent open source textbook, *R for Data Science* (https://r4ds.hadley.nz/) (Fig. 1):
+
++ https://r4ds.hadley.nz/diagrams/data-science/base.png
+
+This data science is nothing special, but it is a useful framework for thinking about how to work with data.
+
+The workflow starts with **importing** data and putting it into the **tidy format** (more on this later). This is just a format that is easy to work with. It then looks at the process of **understanding** data. Understanding, the workflow states, involves **transforming**, **visualising** and **modelling** data. In this workshop we will learn:
+
+1.	Data import
+2.	Data tidying
+3.	Data transformation
+4.	Data visualisation
+
+We will not cover any real statistical methods in this workshop. In my view, it is first important to understand the basics of working with data and learning how to extract information from data. But before we start with this, we must learn a little bit more about R…
+
+How does R work? Basics
+If you have followed the instructions correctly so far, you will have the R-script for this workshop open and you will have loaded packages, cleared R’s memory and set the working directory to the correct folder on your computer (Topic_2). You will now be at the section in the script that says: 
+
+### How does R work? Basics
+
+R is a functional programming language. This generally means that we use functions to do stuff on different objects in the environment. The objects that we most commonly work with in R are data objects. These can be vectors, data.frames (i.e. tables), lists etc. In this tutorial, we mostly work with vectors and data.frames.
+
+What is a vector? A vector is a just a list of elements (e.g. numbers, words etc.) of the same kind. For example, a vector could be a list of ten numbers or a list of ten letters. For example, this is a vector of ten numbers drawn from a normal distribution in R. 
+
+```{r}
+rnorm(n = 10, mean = 0, sd = 1)
+```
+data.frames are the most familiar data structure for most people. These are just tables made up of different variables (the columns). You can see each variable as its own vector. For example, this is a data.frame of four variables (columns) and six rows.
+
+```{r}
+data.frame(var0 = LETTERS[1:6], 
+           var1 = rnorm(n = 6),
+           var2 = rnorm(n = 6),
+           var3 = rnorm(n = 6))
+```
+
+As I mentioned, R is a functional programming language which means that we do things to objects using functions. Functions generally take an object as an input and additional *arguments*. These arguments may be statistical parameters, extra options associated with the function like which calculation method to use etc. 
+
+The example below shows the general structure of an R-function. We call a function with the name of the function and by opening round brackets: *function()*. We then specify what object we want to perform the function on with the name of the object and various other arguments separated by commas:
+
++ function( object, argument 1, argument 2 etc.)
+
+If you need to find out what arguments a function takes, you can click the help button in the bottom-right panel of R-studio and type in the name of the function. Alternatively, you can just Google the function name and you should find the function documentation. Note that some functions may have a slightly different structure.
+
+Let's now use to create our own vector and data.frame and execute a function on these objects:
+
+To create a vector in R, we will use the *c()* function which stands for concatenate (join things together). This function joins different numbers, letters etc. into a vector. We call the *c()* function and write down as many numbers as we want separated by commas. This joins these numbers together into a vector. We then use the *<-* to assign this vector into an object called vector. Note that we could’ve named this literally anything (e.g. flimmy_flammy, mr_wiggles etc.). Run this block of code:
+
+```{r}
+# create a vector object called vector
+vector <- c(5, 8, 4, 6, 5.5, 7.5)
+```
+
+Once you have run this line of code, you can run the next line of code which is just the object we created. R will show you the vector in the console.
+
+```{r}
+# run the object called vector
+vector
+```
+
+Now we have created our vector called vector. This is our object. Now, we want to execute a function on this vector. For example, perhaps we want to calculate the mean of this vector. To do this, we will use the *mean()* function. The *mean()* function takes a vector of numbers as an input and the additional input of na.rm = TRUE (or FALSE). If you specify na.rm = TRUE, R will ignore any missing values you may have in the dataset. This is generally recommended. Run this code and see if it calculates the mean correctly.
+
+```{r}
+# use the mean() function to calculate the mean of the vector
+mean(vector, na.rm = TRUE)
+```
+
+Now that we’ve created a vector object in R and executed a function on this object, we can see how this works with dataframes (i.e. tables of variables). The code below creates a data.frame of 10 rows and four variables. I will not explain all this code but basically: the *tibble()* function from the *dplyr* package tells R to make a table. In this function, you have to specify the different variables as variable = vector. For example, I called the first variable var0 and specified it as a vector that is the first 10 letters of the English alphabet: LETTERS[1:10]. The other variables are numbers that I drew randomly from different probability distributions (but don’t worry about these now). I then used *<-* to make this dataframe an object and named it df. Again, I could have named it anything. Run this block of code:
+
+```{r}
+# dataframe example:
+df <- tibble(var0 = LETTERS[1:10], 
+             var1 = rnorm(n = 10, mean = 5, sd = 3),
+             var2 = rbinom(n = 10, size = 5, prob = 0.5),
+             var3 = runif(n = 10, min = 0, max = 1))
+
+# run the object we just created to display it
+df
+```
+
+
+Now we have a dataframe and we want to execute a function on this dataframe. For example, let’s say we wanted to calculate the standard deviation of var3. For this, we use the *sd() *function which, like the *mean()* function, takes a vector as an input. Our data.frame has four variables, each of which is just a vector. Therefore, to calculate the standard deviation of var3, we need to take that variable out of the data.frame and put it into the *sd()* function. 
+
+We do this by using the *$* after the df object and specifying var3. To see how this works, run the dcode below and see what happens:
+
+```{r}
+# use the sd() function to calculate the standard deviation of var3
+# first, call var3 from df
+df$var3
+```
+
+Now that we know what happens when we call var3, we can put it in the sd() function and calculate the standard deviation.
+
+```{r}
+# place this code into the sd() function
+sd(df$var3)
+```
+
+Therefore, with data.frames, you will often have to call different parts of the data that you want to perform functions on. You can also use R to do much more complicated data transformations (some of which we will learn later). For now, it is just important to know that R works with objects which we then execute functions on. 
+
+
+
+
+
+
+
+
