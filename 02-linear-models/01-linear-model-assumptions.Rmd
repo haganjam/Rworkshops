@@ -19,16 +19,13 @@ One thing that I found helped students was to show them clear examples of what n
 
 ### What are the assumptions of linear models?
 
-I have been rather underwhelmed by many of the short blog posts and articles on this topic. They seem to treat these assumptions in a very superficial way without really going into the details about why we need to test different assumptions. So, to try and do better. Much of this material comes from Quinn and Keough's (2002) excellent statistics textbook. 
+I have been rather underwhelmed by many of the short blog posts and articles on this topic. They seem to treat these assumptions in a very superficial way without really going into the details about why we need to test different assumptions. Here, I won't go into all the details. The details are provided in so many textbooks. I can recommend Quinn and Keough (2002) which, in my view, gives solid amount of detail and is presented very clearly. My goal here is provide a solid intuition of how a linear model is set-up and provide some intuition about why we have make certain assumptions and how important this is for us to make inference.
 
-Let's start with with probably the most common formulation of a linear model:
+Have to go into the population-level stuff... And, then show with simulation that when our residuals are not normally distributed, then the confidence interval inference starts to break down...
 
-$$
-y_i = \beta_0 + \beta_1X_i + \epsilon_i
-$$
-Where $y_i$ is the value of Y for the $i^{th}$ observation given that the X, the predictor variable is equal to $x_i$. The $\beta_0$ parameter is the population intercept which can be interpreted as the mean value of the distribution of Y when $x_i$ is equal to zero. Similarly, $\beta_1$ is the population slope which describes the change in Y for very unit change in X. Finally, $\epsilon_i$ is the random error of the $i^{th}$ observation which effectively measures the difference between each observed $y_i$ and the mean or expected value of $y_i$ which is what is predicted by the population regression line (this is the regression line that we try to estimate when fitting the model).
+pg. 83 in Quinn and Keough.
 
-If we imagine that there was some true regression line that describes the data, then when we collect some data and we fit a regression model to it, the parameters that we obtain are estimates of the population-level parameters. So, 
+
 
 
 
