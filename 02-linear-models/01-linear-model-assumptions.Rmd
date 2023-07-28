@@ -1,0 +1,37 @@
+---
+title: "Linear model assumptions"
+author: "James G. Hagan"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Checking the assumptions of a linear model
+
+Over the last four years, I've taught on bio-statistics courses which focus on general linear models. And, I've come to discover that one of the most difficult things that I've tried to teach is how to check the assumptions of linear models. The reason for this (I think) is that there is no clear, standard recipe for doing this. Moreover, we tend to tell students to do things like: "check if the residuals are normally distributed". However, at the start it's not that easy to decide when something is normal enough.
+
+This feeling of uncertainty surrounding when the residuals are "normal enough" or when it seems that some pattern in the residuals is "too much" leads many to rely on statistical tests for checking these assumptions. For example, it is reasonably common for students to ask me whether we can use a Shapiro-Wilk's test for normality to test if the residuals are normally distributed. This, in and of itself, is not a terrible idea but the problem with these tests for verifying assumptions is statistical power. If I use a Shapiro-Wilk's test on some residuals and I fail to reject the null hypothesis of normality, does that mean the data are normal or does it simply mean that I didn't have enough statistical power to reject the null hypothesis. This becomes especially problematic with small sample sizes where the test will inherently have low statistical power.
+
+One thing that I found helped students was to show them clear examples of what non-normal residuals look like by simulating data, for example, that is Poisson distributed or Log-Normally distributed. So, in this tutorial, I will go through the assumptions of linear models, why we have to test the assumptions and then use some simulations to show what residuals plots look like when the assumptions of regression are violated.
+
+### What are the assumptions of linear models?
+
+I have been rather underwhelmed by many of the short blog posts and articles on this topic. They seem to treat these assumptions in a very superficial way without really going into the details about why we need to test different assumptions. So, to try and do better. Much of this material comes from Quinn and Keough's (2002) excellent statistics textbook. 
+
+Let's start with with probably the most common formulation of a linear model:
+
+$$
+y_i = \beta_0 + \beta_1X_i + \epsilon_i
+$$
+Where $y_i$ is the value of Y for the $i^{th}$ observation given that the X, the predictor variable is equal to $x_i$. The $\beta_0$ parameter is the population intercept which can be interpreted as the mean value of the distribution of Y when $x_i$ is equal to zero. Similarly, $\beta_1$ is the population slope which describes the change in Y for very unit change in X. Finally, $\epsilon_i$ is the random error of the $i^{th}$ observation which effectively measures the difference between each observed $y_i$ and the mean or expected value of $y_i$ which is what is predicted by the population regression line (this is the regression line that we try to estimate when fitting the model).
+
+If we imagine that there was some true regression line that describes the data, then when we collect some data and we fit a regression model to it, the parameters that we obtain are estimates of the population-level parameters. So, 
+
+
+
+
+
+
