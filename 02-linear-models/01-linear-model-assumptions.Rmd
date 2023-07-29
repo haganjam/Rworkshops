@@ -19,11 +19,102 @@ One thing that I found helped students was to show them clear examples of what n
 
 ### What are the assumptions of linear models?
 
-I have been rather underwhelmed by many of the short blog posts and articles on this topic. They seem to treat these assumptions in a very superficial way without really going into the details about why we need to test different assumptions. Here, I won't go into all the details. The details are provided in so many textbooks. I can recommend Quinn and Keough (2002) which, in my view, gives solid amount of detail and is presented very clearly. My goal here is provide a solid intuition of how a linear model is set-up and provide some intuition about why we have make certain assumptions and how important this is for us to make inference.
+I have been rather underwhelmed by many of the short blog posts and articles on this topic. They seem to treat these assumptions in a very superficial way without really going into the details about why we need to test different assumptions. Here, I won't go into all the details. The details are provided in so many textbooks. I can recommend Quinn and Keough (2002) which, in my view, gives solid amount of detail and is presented very clearly. My goal here is provide some intuition of how a linear model is set-up and provide some intuition about why we have make certain assumptions and how important this is for us to make inference.
 
-Have to go into the population-level stuff... And, then show with simulation that when our residuals are not normally distributed, then the confidence interval inference starts to break down...
+Let's imagine a population of 10 000 Cape fur seals (*Arctocephalus pusillus*) each of which has some body weight ($y_i$). Let's then say that there is a relationship between a seal's body weight ($y_i$) and the number of fish ($x_i$) a given seal eats. We can write this population-level model as:
 
-pg. 83 in Quinn and Keough.
+$$
+y_i = \beta_0 + \beta_1x_i + \epsilon_i
+$$
+
+In this model, the $\beta_0$ parameter is the population intercept which, in this case, can be interpreted as the mean value of the distribution of Y when $x_i$ is equal to zero. Similarly, $\beta_1$ is the population slope which describes the change in Y for very unit change in X. Finally, $\epsilon_i$ is the random error of the $i^{th}$ observation which effectively measures the difference between each observed $y_i$ and the mean or expected value of $y_i$ which is what is predicted by the population regression line.
+
+Let's simulate this scenario. To do this, for 10 000 seals (N), we draw a number of fish eaten ($x_i$) from a Poisson distribution:
+
+```{r}
+# set the number of seals in the population
+N <- 10000
+
+# draw 10 000 xi values from a Poisson distribution with lambda = 10
+xi <- rpois(n = N, lambda = 10)
+```
+
+Cape fur seals generally weight between 100 and 300 kg. So, if we imagine that an individual seal that weighs 100 kg is underfed, then we can set the $\beta_0$ population-level intercept to 100 because this represents the average weight of a seal when the number of fish it has eaten is zero.
+
+We can then imagine that, for every fish a seal eats, it gains 5 kg on average. Therefore, we set the $\beta_1$ population-level slope to 5. Finally, there is some random error ($\epsilon_i$) around the mean Y (seal body weight) for every X value (number of fish eaten). We assume that this random error ($\epsilon_i$) is normally distributed around zero.
+
+Using these parameters, let's simulate the $y_i$ values in the population.
+
+```{r}
+# set the population-level beta parameters
+B0 <- 100
+B1 <- 5
+
+# simulate the yi values for the 10 000 seals
+yi <- B0 + (B1*xi) + rnorm(n = N, 0, 5)
+```
+
+Now, we can plot the relationship between the number of fish eaten by each seal and the seal's body weight in the population:
+
+```{r}
+plot(yi ~ xi, ylab = "Seal weight (kg)", xlab = "Number of fish eaten")
+```
+
+So let's now imagine that we wanted to *estimate* the relationship between the number of fish a seal eats and its weight. For this, we need to take a random sample of 100 seals from this population and then fit a model to this sample. Let's do this.
+
+```{r}
+# take a random sample of seals from the population
+n_id <- sample(1:N, size = 100)
+
+# get the relevant xi values
+xi_s <- xi[n_id]
+
+# get the relevant yi values
+yi_s <- yi[n_id]
+
+# plot the relationship between xi_s and yi_s of the sample
+plot(xi_s, yi_s, ylab = "Seal weight (kg)", xlab = "Number of fish eaten")
+
+```
+
+We can now fit a linear regression model to these sample data and try to estimate the population-level parameters that we simulated (i.e. $\beta_0$ and $\beta_1$). A linear regression models takes the following form:
+
+$$
+y_i = b_0 + b_1x_i + e_i
+$$
+Here, the $b_0$ and $b_1$ are estimates of the population-level parameters (i.e. $\beta_0$ and $\beta_1$) and the $e_i$ values are the model residuals i.e. the difference between the observed $y_i$ and the predicted value which is $\hat{y_i}$
+
+Let's fit this model using R's built-in *lm()* function which uses ordinary least squares:
+
+```{r}
+# fit the linear regression model
+lm1 <- lm(yi_s ~ xi_s)
+
+# check the estimated model coefficients
+print(lm1)
+```
+
+As we can see from the above output, the $b_0$ (i.e. Intercept) and $b_1$ (i.e. xi_s) parameter estimates outputted by the model are very close to the population-level $\beta_0$ and $\beta_1$ parameters that we simulated.
+
+If we look a bit further at the output of this model, we get two more pieces of information that are probably relatively familiar to most people: P-values and confidence intervals.
+
+First, when we use the *summary()* function on an *lm()* object, we get statistical tests of the null hypothesis that the estimate parameters $b_0$ and $b_1$ are zero. If the P-value is less than 0.05 (purely from statistical convention), then we reject the null hypothesis and we say that parameters are different from zero. Let's look at this output for this model:
+
+```{r}
+# check the summary output
+summary(lm1)
+```
+As we can see from this output, the P-values associated with both $b_0$ and $b_1$ are less than 0.05 and so we conclude that the null hypothesis is rejected: these parameters differ from zero.
+
+We can also check the confidence intervals around these parameters. We usually calculate a 95% confidence interval but, like the 0.05 significance-level of a P-value, is purely conventional. Let's look at the confidence intervals for $b_0$ and $b_1$:
+
+```{r}
+# check the confidence intervals around b0 and b1
+confint(lm1)
+```
+So, as we can see, the 95% confidence interval is a range representing the uncertainty in our parameter estimates for $b_0$ and $b_1$. How to properly interpret a confidence interval is not very straightforward. I'm sure you've heard some phrase like: "there is a 95% probability that the true parameter value is within this confidence interval". This is not strictly true. The proper interpretation of a confidence interval is as follows. Imagine we could redo our analysis 100 times (i.e. take 100 seals from the population 100 separate times and perform the analysis) and each time estimate the 95% confidence interval for the parameters. What the confidence interval says is that, in 95 out of 100 of those analyses, the calculated confidence intervals would contain the true parameter values.
+
+You're probably thinking: "what does this have to do with checking linear model assumptions?". A fair point. Admittedly, this has been a pretty long build-up. However, it is important because for the P-values and confidence intervals we just looked to be valid (i.e. to do what they are supposed to do), we need to make some assumptions about the error term in the population-level regression (i.e. $\epsilon$). When we test assumptions, we are effectively trying to verify certain features of this error term ($\epsilon$) which then allows us to make valid inferences based on P-values and confidence intervals. If this is confusing, don't worry! We are going to simulate all of this and it will hopefully become clearer.
 
 
 
