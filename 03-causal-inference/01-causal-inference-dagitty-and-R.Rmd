@@ -79,22 +79,112 @@ Now that we have imported our DAG (i.e. *dag1*) into R, we can start to analyse 
 
 The amazing thing about DAGs is that they make statements about relationships in the actual data. So, once you have your data and you have your DAG, you can check whether the statements the DAG makes about the data are, in fact, true! This is a very powerful aspect of DAGs.
 
-Of course, you have  
+Of course, you have some real data that you have collected and you have created a DAG to try and explain that data. The DAG I have just created (i.e. *dag1*) is a hypothetical DAG. Therefore, there is no data to test it against. But, I will simulate some data that matches the DAG and then we can see how to test the DAG against data.
 
-The DAG I have just created (i.e. *dag1*) is a hypothetical DAG. Therefore, there is no data to test it against. 
+To simulate data that is consistent with the DAG, run the following block of code:
 
+```{r}
+# set the number of data points to simulate
+n <- 200
 
+# simulate X1 as a normally distributed variable
+x1 <- rnorm(n = n, mean = 20, sd = 3)
 
+# simulate X2 as a variable that is caused by X1 with some random error
+x2 <- (0.5*x1) + rnorm(n = n, mean = 0, sd = 0.1)
 
+# simulate X3 as a variable that is caused by both X1 and X2 with some random error
+x3 <- (-0.3*x1) + (1.2*x2) + rnorm(n = n, mean = 0, sd = 0.1)
 
+# simulate Y as a variable that is caused by X2 and X3 with some random error
+y <- (0.75*x2) + (1.5*x3) + rnorm(n = n, mean = 0, sd = 0.1)
 
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+# wrap all of this into a tibble (i.e. a fancy data.frame)
+dag1_df <- dplyr::tibble(x1, x2, x3, y)
+print(dag1_df)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+First, we can use the *dagitty* R-package to see what kind of statements the DAG implies about the data. To do this, we run the following code:
+
+```{r}
+# put our dag into the function
+dagitty::impliedConditionalIndependencies(x = dag1)
+```
+
+How do we read such gibberish? This weird symbol *_||_* means "is independent of". And, just like in probability theory, the symbol *|* means "given" or "conditional on" and the comma *,* means "and". So we can read this statement as:
+
++ "X1 is independent of Y given X2 and X3".
+
+In simple terms, what this means is that X1 and Y should be *uncorrelated* if we condition on X2 and X3 i.e. we add X2 and X3 into our statistical model as covariates.
+
+There are many different ways to test such *conditional independence* statements. For example, we can fit general linear models to X1 and Y with X2 and X3 as predictor variables and then see if the residuals are correlated. To do this, run the following block of code:
+
+```{r}
+# fit a linear model to X1 with X2 and X3 as predictor variables
+lm1 <- lm(x1 ~ x2 + x3, data = dag1_df)
+
+# fit a linear model to Y with X2 and X3 as predictor variables
+lm2 <- lm(y ~ x2 + x3, data = dag1_df)
+
+# plot the relationship with the residuals
+plot(residuals(lm1), residuals(lm2))
+
+# check if the residuals are correlated
+cor.test(x = residuals(lm1), y = residuals(lm2))
+```
+
+As you can see, the residuals are unrelated and the correlation between the residuals is non-significant. We know this is the case in this example because of how we simulated the DAG.
+
+Another option is to use analysis of variance techniques (e.g. Schoolmaster et al. 2020) or the equivalent likelihood ratio tests for models with non-normal error distributions. For example, we fit a linear model to Y with X2 and X3 as predictor variables. We then fit another linear model to Y with X1, X2 and X3 as predictor variables. We then test if the more complex model (i.e. with X1, X2 and X3 as predictor variables) explains more variance than the simpler model (i.e. with only X2 and X3 as predictor variables):
+
+```{r}
+# fit a linear model to Y with X2 and X3 as predictor variables
+lm1 <- lm(y ~ x2 + x3, data = dag1_df)
+
+# fit a linear model to Y with X1, X2 and X3 as predictor variables
+lm2 <- lm(y ~ x1 + x2 + x3, data = dag1_df)
+
+# compare the models using analysis of variance
+anova(lm1, lm2)
+```
+As you can see, the complicated model is not significantly different from the simpler model which, in this case, means that X1 and Y are independent given X2 and X3.
+
+However, there are a number of specialised R-packages that will conduct these kinds of tests for you. One of the common R-packages for doing this is called *bnlearn*. To install and load this package, run the following code block:
+
+```{r}
+install.packages("bnlearn")
+library(bnlearn)
+```
+
+Using this package, we can use the *ci.test* function to perform these conditional independence tests and check if our DAG is consistent with the data. Remember, the conditional independence statement that we are trying to test is:
+
++ "X1 is independent of Y given X2 and X3".
+
+Here, X1 is the x-variable, Y is the y variable and the variables X2 and X3 are covariates. To see how this works for this example, run the following code block:
+
+```{r}
+# x = the x variable (i.e. x1 in this example)
+# y = the y variable (i.e. y in this example)
+# z = the covariates (i.e. x2 and x3 in this example)
+bnlearn::ci.test(x = "x1", y = "y", z = c("x2", "x3"), data = dag1_df, test = "cor")
+```
+As you may have noticed, this is the same result that we got by correlating the residuals of X1 and Y from models with X2 and X3 as predictor variables (see previous examples). This is because we told *ci.test* to implement the Pearson's correlation test (test = "cor"). However, the *ci.test* function has many other possible tests which can be useful when, for example, some of your data are categorical.
+
+How should we interpret this non-significant test result? What it means is that, with our current dataset, our data are consistent with the DAG. This is because the DAG told us that X1 and Y should be independent of one another if we conditioned on X2 and X3. We then tested this statement and found that, indeed, X1 and Y are independent in the data when we condition on X2 and X3.
+
+Of course, this does not mean that our DAG is true. We could create other DAGs that generate different conditional independence statements and our data might be consistent with those as well. Moreover, we might have low quality data which prevents us from accurately testing these conditional independence statements. However, combined with the scientific logic we used to construct the DAG, the fact that our data are at least consistent with DAG gives us reassurance that the DAG will be useful for informing our statistical analyses.
+
+**How do we use the DAG to design appropriate statistical procedures?**
+
+
+
+
+
+
+
+
+
+
+
+
+
