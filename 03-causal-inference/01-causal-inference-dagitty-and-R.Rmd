@@ -2,7 +2,7 @@
 title: "Causal inference workshop"
 author: "James G. Hagan"
 date: "`r Sys.Date()`"
-output: html_document
+output: rmarkdown::github_document
 ---
 
 ```{r setup, include=FALSE}
