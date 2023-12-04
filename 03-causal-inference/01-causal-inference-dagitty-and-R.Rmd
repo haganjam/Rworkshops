@@ -84,8 +84,11 @@ Of course, you have some real data that you have collected and you have created 
 To simulate data that is consistent with the DAG, run the following block of code:
 
 ```{r}
+# set the seed for reproducibility
+set.seed(54908)
+
 # set the number of data points to simulate
-n <- 200
+n <- 500
 
 # simulate X1 as a normally distributed variable
 x1 <- rnorm(n = n, mean = 20, sd = 3)
@@ -174,15 +177,117 @@ How should we interpret this non-significant test result? What it means is that,
 
 Of course, this does not mean that our DAG is true. We could create other DAGs that generate different conditional independence statements and our data might be consistent with those as well. Moreover, we might have low quality data which prevents us from accurately testing these conditional independence statements. However, combined with the scientific logic we used to construct the DAG, the fact that our data are at least consistent with DAG gives us reassurance that the DAG will be useful for informing our statistical analyses.
 
+If your data are not consistent with the data, then you should go back to the drawing board and try to figure out why. Perhaps there is some important unmeasured variable or perhaps your understanding of the system is wrong. Usually, building the DAG, testing it against data and then trying new DAGs can tell you a lot about the system and whether your understanding of it is correct.
+
 **How do we use the DAG to design appropriate statistical procedures?**
 
+Okay, so now we have a DAG that is consistent with the data. The next step is ask the DAG how to create statistical models to estimate various relevant causal effects. 
+
+First, let's just look at the DAG again:
+
+```{r}
+plot(dag1)
+```
 
 
+Now, let's imagine that we want to estimate the *direct* causal effect of X2 on Y. Therefore, in the DAG above, we want to estimate the effect associated with the arrow going from X2 to Y.
 
+What kind of statistical model should we use to estimate this effect? Which variables should we include? Of course, we know we have to include X2 and Y but then what? Should we include X1 or X3? Should we include both?
 
+We can use the DAG to answer these questions. To do this, we can use the *adjustmentSets* function from the dagitty R-package. To do this, we have to add in the following information into the function:
 
++ x - our DAG (i.e. dag1 in this example)
++ exposure - the exposure variable which, in this case, is X2
++ outcome - the outcome variable which, in this case, is Y
++ effect - in this case, we want the direct effect (I will explain the total effect later)
 
+We can fill this information into the function below:
 
+```{r}
+# ask the DAG how to estimate the direct causal effect of X2 on Y
+dagitty::adjustmentSets(x = dag1,
+                        exposure = "X2", 
+                        outcome = "Y",
+                        effect = "direct")
+```
+
+The output that this bit of code gives is "{ X3 }". Basically, this means that, to estimate the causal effect of X2 on Y, we need to adjust for or condition on X3 i.e. we need to add X3 into our model as a covariate.
+
+Basically, we fit a linear model with Y as the response variable and X2 and X3 as predictor variables. The coefficient associated with the effect of X2 on Y is then the estimate for the direct causal effect of X2 on Y.
+
+```{r}
+lm1 <- lm(y ~ x2 + x3, data = dag1_df)
+summary(lm1)
+```
+As you can see from the model output, the causal effect of X2 on Y is given as 0.73. This means that for every one unit of increase of X2, Y increases by 0.73 units. Because we simulated this DAG, we can see if this matches the true effect i.e. the effect that simulated. And, yes, it does. In the simulation, I specified that the true causal effect of X2 on Y was 0.75!
+
+What would've happened if we had just used all the variables as is common? Let's see!
+
+```{r}
+lm1 <- lm(y ~ x1 + x2 + x3, data = dag1_df)
+summary(lm1)
+```
+
+From this output with a mis-specified model, the causal effect we get for the effect of X2 on Y is 0.68. This is less accurate than the model that the DAG told us to fit. 
+
+What about if we wanted to estimate the direct causal effect of X3 on Y? What kind of statistical model would we need then? Try figure this out using some of the code above. 
+
+```{r}
+
+```
+
+Then using this information, fit a model and try to estimate the direct causal effect of X3 on Y. I will tell you that the true direct causal effect of X3 on Y that I simulated is:
+
++ 1.5
+
+What these examples are meant to illustrate is that the DAG can help you decide what kinds of model to fit when you want to estimate a specific causal effect. It also means that you should not just interpret big tables full of regression coefficients. Rather, you should fit specific statistical models for each causal effect that you want to estimate.
+
+**What is the difference between direct and total causal effects?**
+
+In these previous examples, the causal effects that we estimated were all *direct causal effects*. But what exactly is a *direct causal effect* and how is it different to a *total causal effect*?
+
+To explain this, let's have a look at the DAG again:
+
+```{r}
+plot(dag1)
+```
+
+If you look at the variable X2, it directly affects Y because there is an arrow going directly from X2 to Y. However, X2 also directly affects X3 and there is a direct arrow going from X3 to Y. Therefore, X2 also affects Y because it affects X3. Therefore, the total effect of X2 on Y is the combined effect of:
+
++ The direct effect of X2 on Y
++ The indirect effect of X2 on Y that acts through X3
+
+We can also estimate the total effect of X2 on Y but, to do so, we need to ask the DAG what kind of statistical model to fit. So let's do this. We will again use the *adjustmentSets* function but now, instead of saying:
+
++ effect = "direct"
+
+We will specify:
+
++ effect = "total"
+
+```{r}
+# ask the DAG how to estimate the total causal effect of X2 on Y
+dagitty::adjustmentSets(x = dag1,
+                        exposure = "X2", 
+                        outcome = "Y",
+                        effect = "total")
+```
+
+Now, instead of including X3 as a covariate, we need to include X1 as a covariate in our statistical model. So, let's fit this model and check out the estimated effect:
+
+```{r}
+lm1 <- lm(y ~ x2 + x1, data = dag1_df)
+summary(lm1)
+```
+If you remember, the direct effect of X2 on Y was 0.73. Now, however, the total effect of X2 on Y is much stronger. It is now: 2.5!
+
+Why does this occur? Well, it occurs because when I simulated these data, I specified that X2 as a positive direct effect on X3 of 1.2 and that X3 has a positive direct effect on Y of 1.5. Therefore, the path connecting X2 and Y that goes through X3 has an effect of 1.8 i.e. for every one unit increase of X2, Y increases by 1.8 (multiply 1.2 by 1.5). Then, the direct effect of X2 on Y is 0.75. So, if we add up 0.75 and 1.8, we get a true, simulated total causal effect of X2 on Y of 2.55. And, the model estimated this total causal effect to be 2.52.
+
+So, direct and total causal effects are both valid and interesting. Deciding which one to use will depend on the question you are trying to answer.
+
+### Conclusions
+
+That's a very brief introduction to using DAGs to design statistical procedures to estimate causal effects from data. I hope it was useful and I really encourage you to try and think about DAGs that make sense for your data and to use these methods to help you design your statistical models.
 
 
 
