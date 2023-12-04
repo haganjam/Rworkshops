@@ -43,7 +43,7 @@ X3 -> Y
 There is an R-package called *dagitty* that interfaces with the *dagitty* web-interface that we just used. So, first things first, you will need to download the *dagitty* R-package. To do this, run the following code:
 
 ```{r}
-install.packages("dagitty")
+# install.packages("dagitty")
 library(dagitty)
 ```
 
@@ -155,7 +155,7 @@ As you can see, the complicated model is not significantly different from the si
 However, there are a number of specialised R-packages that will conduct these kinds of tests for you. One of the common R-packages for doing this is called *bnlearn*. To install and load this package, run the following code block:
 
 ```{r}
-install.packages("bnlearn")
+# install.packages("bnlearn")
 library(bnlearn)
 ```
 
