@@ -1,0 +1,100 @@
+---
+title: "Causal inference workshop"
+author: "James G. Hagan"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Introduction
+
+This tutorial is meant to introduce the basics of using causal inference methodologies in your own research. First, you will learn how to play around with the dagitty web tool that will allow you to create your own Directed Acyclic Graphs (DAGs) (https://dagitty.net/dags.html). Second, you will learn how to transfer your DAG into R. Third and finally, you will learn how to analyse your DAG in R. By analysing your DAG in R, you will be able to derive testable predictions to check whether your DAG is consistent with the data. Moreover, through this analysis, you will obtain information about the correct statistical models to fit to obtain a given causal estimate. And, you will gain information about how to interpret the coefficients obtained from any given statistical model given the DAG.
+
+### 1. Building DAGs using dagitty
+
+In your web-browser, open the following link:
+
++ https://dagitty.net/dags.html
+
+In the top-left of the interface, click *Model* and then *New model*. This will create a blank interface. To add a variable, simply click anywhere in the space and it will ask you to give your variable a name. I like to use abbreviations so, for example, if your variable is rainfall, then I usually call it something like RF.
+
+Once you have created your variables, you will need to specify how they relate to one another. As Judea Pearl puts it, you will need to specify: "who listens to who". For this, you click on one variable (X1) and then another variable (X2) and this creates an arrow going from X1 to X2. Do this for all your variables.
+
+Once you have constructed your DAG, you will see a box on the right-hand side of the screen called: *Model code*. This is a set of instructions that encodes your DAG that R can read. For a random model I created, the code looks like this:
+
+dag {
+bb="0,0,1,1"
+X1 [pos="0.411,0.190"]
+X2 [pos="0.355,0.314"]
+X3 [pos="0.469,0.312"]
+Y [pos="0.411,0.441"]
+X1 -> X2
+X1 -> X3
+X2 -> X3
+X2 -> Y
+X3 -> Y
+}
+
+### 2. Importing DAGs into R using the dagitty R-package
+
+There is an R-package called *dagitty* that interfaces with the *dagitty* web-interface that we just used. So, first things first, you will need to download the *dagitty* R-package. To do this, run the following code:
+
+```{r}
+install.packages("dagitty")
+library(dagitty)
+```
+
+Once the *dagitty* package is installed, we can use the model code from the web interface to import our DAG into R. For this we do the following and we call it *dag1*:
+
+```{r}
+dag1 <- 
+dagitty::dagitty(x = 'dag {
+bb="0,0,1,1"
+X1 [pos="0.411,0.190"]
+X2 [pos="0.355,0.314"]
+X3 [pos="0.469,0.312"]
+Y [pos="0.411,0.441"]
+X1 -> X2
+X1 -> X3
+X2 -> X3
+X2 -> Y
+X3 -> Y
+}')
+```
+
+If we did this correctly, we can now plot our DAG in R using the following code:
+
+```{r}
+plot(dag1)
+```
+
+### 3. Analysing DAGs using R and dagitty
+
+Now that we have imported our DAG (i.e. *dag1*) into R, we can start to analyse it. We will start by checking if our DAG is consistent with our data.
+
+**Is our DAG consistent with our data?**
+
+The amazing thing about DAGs is that they make statements about relationships in the actual data. So, once you have your data and you have your DAG, you can check whether the statements the DAG makes about the data are, in fact, true! This is a very powerful aspect of DAGs.
+
+Of course, you have  
+
+The DAG I have just created (i.e. *dag1*) is a hypothetical DAG. Therefore, there is no data to test it against. 
+
+
+
+
+
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
