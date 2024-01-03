@@ -19,7 +19,7 @@ One thing that I found helped students was to show them clear examples of what n
 
 ### What are the assumptions of linear models?
 
-I have been rather underwhelmed by many of the short blog posts and articles on this topic. They seem to treat these assumptions in a very superficial way without really going into the details about why we need to test different assumptions. Here, I won't go into all the details. The details are provided in so many textbooks. I can recommend Quinn and Keough (2002) which, in my view, gives solid amount of detail and is presented very clearly. My goal here is provide some intuition of how a linear model is set-up and provide some intuition about why we have make certain assumptions and how important this is for us to make inference.
+I have been rather underwhelmed by many of the short blog posts and articles on this topic. They seem to treat these assumptions in a very superficial way without really going into the details about why we need to test different assumptions. Here, I won't go into all the details. The details are provided in so many textbooks. I can recommend Quinn and Keough (2002) which, in my view, gives solid amount of detail and is presented very clearly. My goal here is to provide some intuition of how a linear model is set-up and why we have to make certain assumptions and how important this is for us to make inference.
 
 Let's imagine a population of 10 000 Cape fur seals (*Arctocephalus pusillus*) each of which has some body weight ($y_i$). Let's then say that there is a relationship between a seal's body weight ($y_i$) and the number of fish ($x_i$) a given seal eats. We can write this population-level model as:
 
@@ -60,7 +60,7 @@ Now, we can plot the relationship between the number of fish eaten by each seal 
 plot(yi ~ xi, ylab = "Seal weight (kg)", xlab = "Number of fish eaten")
 ```
 
-So let's now imagine that we wanted to *estimate* the relationship between the number of fish a seal eats and its weight. For this, we need to take a random sample of 100 seals from this population and then fit a model to this sample. Let's do this.
+So let's now imagine that we wanted to *estimate* the relationship between the number of fish a seal eats and its weight. For this, we need to take a random sample of seals from this population and then fit a model to this sample. For this example, we'll take a sample of 100 seals:
 
 ```{r}
 # take a random sample of seals from the population
@@ -77,7 +77,7 @@ plot(xi_s, yi_s, ylab = "Seal weight (kg)", xlab = "Number of fish eaten")
 
 ```
 
-We can now fit a linear regression model to these sample data and try to estimate the population-level parameters that we simulated (i.e. $\beta_0$ and $\beta_1$). A linear regression models takes the following form:
+We can now fit a linear regression model to these sample data and try to estimate the population-level parameters that we simulated (i.e. $\beta_0$ and $\beta_1$). A linear regression model takes the following form:
 
 $$
 y_i = b_0 + b_1x_i + e_i
@@ -114,7 +114,7 @@ confint(lm1)
 ```
 So, as we can see, the 95% confidence interval is a range representing the uncertainty in our parameter estimates for $b_0$ and $b_1$. How to properly interpret a confidence interval is not very straightforward. I'm sure you've heard some phrase like: "there is a 95% probability that the true parameter value is within this confidence interval". This is not strictly true. The proper interpretation of a confidence interval is as follows. Imagine we could redo our study 1000 times i.e. and take 100 seals from the population 1000 separate times and each time estimate the 95% confidence interval for the two parameters. What the confidence interval says is that, in 950 out of 1000 (i.e. 95%) of those studies, the calculated confidence intervals would contain the true parameter values.
 
-You're probably thinking: "what does this have to do with checking linear model assumptions?". A fair point. Admittedly, this has been a pretty long build-up. However, it is important because for the P-values and confidence intervals we just looked atto be valid (i.e. to do what they are supposed to do), we need to make some assumptions about the error term in the population-level regression (i.e. $\epsilon$). When we test assumptions, we are effectively trying to verify certain features of this error term ($\epsilon$) which then allows us to make valid inferences based on P-values and confidence intervals. If this is confusing, don't worry! We are going to simulate all of this and it will hopefully become clearer.
+You're probably thinking: "what does this have to do with checking linear model assumptions?". A fair point. Admittedly, this has been a pretty long build-up. However, it is important because for the P-values and confidence intervals we just looked at to be valid (i.e. to do what they are supposed to do), we need to make some assumptions about the error term in the population-level regression (i.e. $\epsilon$). When we test assumptions, we are effectively trying to verify certain features of this error term ($\epsilon$) which then allows us to make valid inferences based on P-values and confidence intervals. If this is confusing, don't worry! We are going to simulate all of this and it will hopefully become clearer.
 
 ### What are the assumptions of linear regression and why do we need them?
 
@@ -133,6 +133,9 @@ In our simulated example, I specified that the error term ($\epsilon_i$) was nor
 In this block of code, all we are going to do is take a random sample of seals from the population of 10 000 seals, fit the linear model, calculate the confidence intervals for the $b_0$ and $b_1$ parameters and check whether the population-level parameters $\beta_0$ and $\beta_1$ are within those confidence intervals. We will then do this 1000 times. 
 
 ```{r}
+# set a seed for reproducibility
+set.seed(339)
+
 # set-up the number of studies
 N_studies <- 1000
 
@@ -170,10 +173,10 @@ b1_vec[i] <- (cix[2,][1] < B1) && (B1 < cix[2,][2])
 Now, using this simulation, we can check how many times out of the 1000 times we did this study that the the confidence intervals that we calculated contained the populations parameters:
 
 ```{r}
-# how many of the calculated confidence intervals contained the true population parameter B0: exactly 950
+# how many of the calculated confidence intervals contained the true population parameter B0:
 sum(b0_vec)
 
-# how many of the calculated confidence intervals contained the true population parameter B1: 952
+# how many of the calculated confidence intervals contained the true population parameter B1:
 sum(b1_vec)
 ```
 Whenever I do these simulations, I always find it quite amazing to see how close to 95% we get. In this simulation, the calculated confidence intervals for the $b_0$ parameter contained the true population-level $\beta_0$ parameter in 950 out of the 1000 simulated studies (i.e. exactly 95%). For the $b_1$ parameter, it was 952.
@@ -208,6 +211,9 @@ plot(yi ~ xi)
 Given that we know we have violated two out of the three assumptions about the error term ($\epsilon_i$), we would not expect our confidence intervals to perform as well as in the previous simulation. Let's see if this is indeed the case. To do this, we do the same thing as previously: take a random sample of seals from the population of 10 000 seals, fit the linear model, calculate the confidence intervals for the $b_0$ and $b_1$ parameters and check whether the population-level parameters $\beta_0$ and $\beta_1$ are within those confidence intervals. Do this 1000 times.
 
 ```{r}
+# set a seed for reproducibility
+set.seed(450297)
+
 # set-up the number of studies
 N_studies <- 1000
 
@@ -245,13 +251,13 @@ b1_vec[i] <- (cix[2,][1] < B1) && (B1 < cix[2,][2])
 Check how many times out of the 1000 times we did this study that the the confidence intervals that we calculated contained the populations parameters:
 
 ```{r}
-# how many of the calculated confidence intervals contained the true population parameter B0: 956
+# how many of the calculated confidence intervals contained the true population parameter B0:
 sum(b0_vec)
 
-# how many of the calculated confidence intervals contained the true population parameter B1: 921
+# how many of the calculated confidence intervals contained the true population parameter B1:
 sum(b1_vec)
 ```
-Interestingly, despite violating these assumptions, the calculated confidence intervals for the $b_0$ parameter contained the true population-level $\beta_0$ parameter in 956 out of the 1000 simulated studies (i.e. exactly 95%). However, for the $b_1$ parameter, it was only 921 which means that the 95% confidence intervals we calculated are not valid.
+Interestingly, despite violating these assumptions, the calculated confidence intervals for the $b_0$ parameter contained the true population-level $\beta_0$ parameter in 955 out of the 1000 simulated studies (i.e. close to 95%). However, for the $b_1$ parameter, it was only 903 which means that the 95% confidence intervals we calculated are not valid. Rather, they are actually 90% confidence intervals (903/1000).
 
 Hopefully, these simulations give you a sense of why we need to check our assumptions. As is clear from this second example, we cannot interpret the 95% confidence interval as a 95% confidence interval when we violate the assumptions.
 
@@ -270,6 +276,10 @@ $$
 As described previously, the $b_0$ and $b_1$ are estimates of the population-level parameters (i.e. $\beta_0$ and $\beta_1$) and the $e_i$ values are the model residuals i.e. the difference between the observed $y_i$ and the predicted value which is $\hat{y_i}$
 
 You can imagine that the residuals ($e_i$) from our sample might contain some information about the error term in the population ($\epsilon$). Therefore, the standard way to check linear model assumptions is to graphically analyse the residuals to see if they look like they come from a population where the error term ($\epsilon$) is in fact normally distributed with constant variance.
+
+How do we do this?
+
+*to be continued*
 
 
 

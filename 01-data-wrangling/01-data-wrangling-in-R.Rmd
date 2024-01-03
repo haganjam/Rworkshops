@@ -137,7 +137,7 @@ sd(df$var3)
 
 Therefore, with data.frames, you will often have to call different parts of the data that you want to perform functions on. You can also use R to do much more complicated data transformations (some of which we will learn later). For now, it is just important to know that R works with objects which we then execute functions on. 
 
-
+*to be continued*
 
 
 

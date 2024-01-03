@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 This tutorial is meant to introduce the basics of using causal inference methodologies in your own research. First, we will learn how to play around with the dagitty web tool that will allow us to create our own Directed Acyclic Graphs (DAGs) (https://dagitty.net/dags.html). Second, we will learn how to transfer our DAGs into R. Third, we will learn how to analyse our DAG in R. By analysing our DAG in R, we will be able to derive testable predictions to check whether our DAG is consistent with the data. Moreover, through this analysis, we will obtain information about the correct statistical models to fit to obtain a given causal estimate. And, we will gain information about how to interpret the coefficients obtained from any given statistical model given the DAG.
 
-Finally, we will analyse an example dataset of seaweed fly super-cooling points.
+Finally, we will analyse an example dataset of seaweed fly supercooling points.
 
 ### 1. Building DAGs using dagitty
 
@@ -370,12 +370,14 @@ lm1 <- lm(Weight ~ Species, data = fly_dat)
 # check assumptions before interpreting the results: they look fine
 plot(lm1)
 ```
+
 Now that we have fit the model and checked the model assumptions, we can check the model results. For this, we will print the model summary:
 
 ```{r}
 # print the model summary
 summary(lm1)
 ```
+
 As we can see, there is a significant effect of species on weight i.e. species differ in their average weights. More specifically, *C. pilipes* is heavier than *C. frigida*. We can also see this if we plot these data:
 
 ```{r}
@@ -403,6 +405,7 @@ lm2 <- lm(SCP ~ Weight, data = fly_dat)
 # check assumptions before interpreting the results: they look fine
 plot(lm2)
 ```
+
 Let's check the model results:
 
 ```{r}
