@@ -296,30 +296,152 @@ So, direct and total causal effects are both valid and interesting. Deciding whi
 
 ### Example dataset: Supercooling points in coexisting seaweed flies
 
-We want to know whether there are differences between the super-cooling points of the two species and whether this effect is due to species differing in weight.
+To illustrate how using causal inference methodologies can help us answer complex research questions, we will look at two seaweed fly species: *Coleopa frigida* and *Coleopa pilipes*. These species often coexist in the brown algae wrack beds that wash up on seashores throughout Europe, using these beds as both habitats and food sources. However, although they exist in sympatry across much of Northern Europe, *C. pilipes* occurs at lower latitudes in the south and *C. frigida* occurs at higher latitudes in the north. Therefore, it seems reasonable to expect that *C. frigida* would have a higher cold tolerance than *C. pilipes*. However, this has not been properly tested.
+
+We will analyse a dataset where the supercooling points of both species were measured on coexisting populations from the west coast of Sweden. What is the supercooling point? The supercooling point is the temperature at which ice-formation starts occurring in an animal's body. Many insects accumulate certain types of sugars and other compounds to reduce their supercooling point to well-below freezing. Thus, species with good cold tolerance are expected to have lower supercooling points. In this study, the supercooling point was measured using a thermocouple. In addition, the sex and weight (g) of each individual was measured. 
+
+Let's now load the data and see what it looks like:
 
 ```{r}
 # load the seaweed fly data from github
 fly_dat <- readr::read_csv(url("https://raw.githubusercontent.com/haganjam/Rworkshops/main/03-causal-inference/data/seaweed-flies.csv"))
+
+# check the first few rows of data
+head(fly_dat)
 ```
+So, in this dataset, we have the supercooling point (SCP), the species (P - *C. pilipes*, F - *C. frigida*), the weight of the individual in grams (Weight) and the sex of the individual (Sex). We can ignore the 'Experiment' and 'SCP_ID' columns for the purposes of this tutorial.
+
+In this dataset, there are only eight female individuals so we will remove these individuals as, there is, in my opinion not enough replication to make inference about them.
 
 ```{r}
-dag1 <- dagitty::dagitty(x = 'dag{
+# remove the female individuals
+fly_dat <- dplyr::filter(fly_dat, Sex == "male")
+head(fly_dat)
+```
+
+Okay, so what do we want to know? Well, we want to know whether there is a difference in cold tolerance between *C. pilipes* and *C. frigida* i.e. whether the measured supercooling point differs between the two species. However, we also measured the weight of each individual of each species. If the species differ in their weights, then any difference in supercooling point between the two species could simply be due to one species being bigger than the other. So, we want to disentangle these different pathways. For this, we need to build a DAG.
+
+In this case, we only have three variables and the DAG is quite obvious. Run this code to plot the DAG and see if you agree:
+
+```{r}
+dag2 <- dagitty::dagitty(x = 'dag{
 bb="0,0,1,1"
-SCP [outcome,pos="0.494,0.342"]
-SEX [adjusted,pos="0.432,0.494"]
-SP [exposure,pos="0.417,0.195"]
-W [pos="0.363,0.347"]
-SEX -> SCP
-SEX -> W
+SCP [outcome,pos="0.5,0.35"]
+SP [exposure,pos="0.4,0.3"]
+W [pos="0.3,0.35"]
 SP -> SCP
 SP -> W
 W -> SCP
 }'
 )
-plot(dag1)
+plot(dag2)
 ```
 
+In this DAG, we have stated that species identity (SP) can affect both weight (W) and supercooling point (SCP) and that weight can also affect supercooling point. It would be hard to argue for any other DAG in this situation. It does not make much scientific sense for weight to, for example, affect species identity.
+
+So, now we have our DAG. As previously, the first thing we now need to do is check whether our data are consistent with the DAG. To do this, we first need to check the conditional independence statements in the data that the DAG implies. To do this, we use the *impliedConditionalIndependencies* function from dagitty.
+
+```{r}
+# what are the conditional independence statements?
+dagitty::impliedConditionalIndependencies(x = dag2)
+```
+
+As you can see, there is no output! Why? Well, because of how simple this DAG is, no variables are implied to be independent of one another. Therefore, in this case, we cannot test whether the data are consistent with the DAG. This will sometimes happen and it is absolutely not the end of the world. Usually, in such a case, the DAG is simple enough that we can be fairly confident about the causal relationships we have specified. As we saw previously, the DAG we created for this experiment is, in my view, quite robust.
+
+Now, we wanted to test whether the species differ in their supercooling points and whether this was due to the species differing in their weights. Okay, so let's do this.
+
+If species differ in their supercooling points because they differ in weight, two things need to be true. First, there needs to be an effect of species on weight (i.e. species need to differ in their weights). Second, weight needs to causally effect the supercooling point. Let's test these.
+
+*Is there an effect of species on weight?*
+
+To test this, we can ask dagitty what we need to adjust for in order to estimate the direct causal effect of species on weight:
+
+```{r}
+# how to estimate the direct effect of species on supercooling point?
+dagitty::adjustmentSets(x = dag2, exposure = "SP", outcome = "W", effect = "direct")
+```
+
+In this case, we do not need to add any other variables to the model! Let's fit this model and calculate the total effect of species on weight.
+
+```{r}
+# fit the model
+lm1 <- lm(Weight ~ Species, data = fly_dat)
+
+# check assumptions before interpreting the results: they look fine
+plot(lm1)
+```
+Now that we have fit the model and checked the model assumptions, we can check the model results. For this, we will print the model summary:
+
+```{r}
+# print the model summary
+summary(lm1)
+```
+As we can see, there is a significant effect of species on weight i.e. species differ in their average weights. More specifically, *C. pilipes* is heavier than *C. frigida*. We can also see this if we plot these data:
+
+```{r}
+# compare species weights using a boxplot
+boxplot(Weight ~ Species, data = fly_dat, ylab = "Weight (g)", xlab = NULL)
+```
+
+So, the species do differ in their weights, on average. Now we want to know whether weight causally affects supercooling point.
+
+*Is there an effect of weight on supercooling point?*
+
+To test this, we can ask dagitty what we need to adjust for in order to estimate the direct causal effect of weight on supercooling point:
+
+```{r}
+# how to estimate the direct effect of species on supercooling point?
+dagitty::adjustmentSets(x = dag2, exposure = "W", outcome = "SCP", effect = "direct")
+```
+
+To estimate this causal effect, we need to adjust for species in our models. So let's do this.
+
+```{r}
+# fit the model
+lm2 <- lm(SCP ~ Weight, data = fly_dat)
+
+# check assumptions before interpreting the results: they look fine
+plot(lm2)
+```
+Let's check the model results:
+
+```{r}
+# print the model summary
+summary(lm2)
+```
+
+In this case, there is no direct causal effect of weight on supercooling point. So, even though the two species differ in the average weight, weight does not causally affect supercooling point. Finally, we can test whether there is a direct causal effect of species on supercooling point.
+
+*Is there a direct effect of species on supercooling point?*
+
+Let's ask dagitty how to estimate this causal effect.
+
+```{r}
+# how to estimate the direct effect of species on supercooling point?
+dagitty::adjustmentSets(x = dag2, exposure = "SP", outcome = "SCP", effect = "direct")
+```
+
+To estimate this causal effect, we need to adjust for weight in our model. So, let's do this.
+
+```{r}
+# fit the model
+lm3 <- lm(SCP ~ Species + Weight, data = fly_dat)
+
+# check assumptions before interpreting the results: they look fine
+plot(lm3)
+```
+
+Let's now check the model summary.
+
+```{r}
+# print the model summary
+summary(lm3)
+```
+As we can see, there is a marginally significant direct of species on supercooling point (Est. = 2.1, P = 0.053). Based on this model, this indicates that *C. frigida* males have a lower supercooling point than males of *C. pilipes* which is in line with our hypothesis.
+
+*What did we learn from this analysis?*
+
+What this analysis shows is that *C. frigida* males are more cold tolerant than *C. pilipes* males which makes sense given their geographic ranges. Moreover, even though the species differed in body size (measured by weight), the differences in cold tolerance we observed were not due to differences in weight (i.e. there was no causal effect of weight on supercooling point). Thus, using our DAG in combination with simple general linear models allowed us to perform a quite detailed causal analysis and led to insights which would be more difficult to achieve without the guidance of the DAG.
 
 ### Conclusions
 
