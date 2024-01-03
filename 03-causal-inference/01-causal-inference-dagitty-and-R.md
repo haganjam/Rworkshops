@@ -5,10 +5,11 @@ James G. Hagan
 
 ### Introduction
 
+The lecture provided the theoretical background of causal inference.
 This tutorial is meant to introduce the basics of using causal inference
-methodologies in your own research. First, we will learn how to play
-around with the dagitty web tool that will allow us to create our own
-Directed Acyclic Graphs (DAGs) (<https://dagitty.net/dags.html>).
+methodologies for use in your own research. First, we will learn how to
+play around with the dagitty web tool that will allow us to create our
+own Directed Acyclic Graphs (DAGs) (<https://dagitty.net/dags.html>).
 Second, we will learn how to transfer our DAGs into R. Third, we will
 learn how to analyse our DAG in R. By analysing our DAG in R, we will be
 able to derive testable predictions to check whether our DAG is
@@ -18,7 +19,7 @@ a given causal estimate. And, we will gain information about how to
 interpret the coefficients obtained from any given statistical model
 given the DAG.
 
-Finally, we will analyse an example dataset of seaweed fly super-cooling
+Finally, we will analyse an example dataset of seaweed fly supercooling
 points.
 
 ### 1. Building DAGs using dagitty
@@ -618,9 +619,10 @@ head(fly_dat)
     ## 6          1 male  -11.8   2363 F         1.98
 
 So, in this dataset, we have the supercooling point (SCP), the species
-(P - *C. pilipes*, F - *C. frigida*), the weight of the individual in
-grams (Weight) and the sex of the individual (Sex). We can ignore the
-‘Experiment’ and ‘SCP_ID’ columns for the purposes of this tutorial.
+(Species: P - *C. pilipes*, F - *C. frigida*), the weight of the
+individual in grams (Weight) and the sex of the individual (Sex). We can
+ignore the ‘Experiment’ and ‘SCP_ID’ columns for the purposes of this
+tutorial.
 
 In this dataset, there are only eight female individuals so we will
 remove these individuals as, there is, in my opinion not enough
@@ -703,7 +705,7 @@ weights. Okay, so let’s do this.
 If species differ in their supercooling points because they differ in
 weight, two things need to be true. First, there needs to be an effect
 of species on weight (i.e. species need to differ in their weights).
-Second, weight needs to causally effect the supercooling point. Let’s
+Second, weight needs to causally affect the supercooling point. Let’s
 test these.
 
 *Is there an effect of species on weight?*
@@ -731,6 +733,7 @@ plot(lm1)
 ```
 
 ![](01-causal-inference-dagitty-and-R_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->![](01-causal-inference-dagitty-and-R_files/figure-gfm/unnamed-chunk-23-2.png)<!-- -->![](01-causal-inference-dagitty-and-R_files/figure-gfm/unnamed-chunk-23-3.png)<!-- -->![](01-causal-inference-dagitty-and-R_files/figure-gfm/unnamed-chunk-23-4.png)<!-- -->
+
 Now that we have fit the model and checked the model assumptions, we can
 check the model results. For this, we will print the model summary:
 
@@ -790,13 +793,14 @@ models. So let’s do this.
 
 ``` r
 # fit the model
-lm2 <- lm(SCP ~ Weight, data = fly_dat)
+lm2 <- lm(SCP ~ Weight + Species, data = fly_dat)
 
 # check assumptions before interpreting the results: they look fine
 plot(lm2)
 ```
 
 ![](01-causal-inference-dagitty-and-R_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->![](01-causal-inference-dagitty-and-R_files/figure-gfm/unnamed-chunk-27-2.png)<!-- -->![](01-causal-inference-dagitty-and-R_files/figure-gfm/unnamed-chunk-27-3.png)<!-- -->![](01-causal-inference-dagitty-and-R_files/figure-gfm/unnamed-chunk-27-4.png)<!-- -->
+
 Let’s check the model results:
 
 ``` r
@@ -806,22 +810,23 @@ summary(lm2)
 
     ## 
     ## Call:
-    ## lm(formula = SCP ~ Weight, data = fly_dat)
+    ## lm(formula = SCP ~ Weight + Species, data = fly_dat)
     ## 
     ## Residuals:
     ##     Min      1Q  Median      3Q     Max 
-    ## -5.2494 -2.3915  0.6412  2.1461  3.2467 
+    ## -4.1820 -1.5667  0.3308  1.7807  3.4547 
     ## 
     ## Coefficients:
-    ##              Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) -9.474530   1.144075  -8.281  9.2e-09 ***
-    ## Weight       0.007623   0.224592   0.034    0.973    
+    ##             Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept)  -9.9088     1.1017  -8.994  2.6e-09 ***
+    ## Weight       -0.1940     0.2342  -0.828   0.4153    
+    ## SpeciesP      2.1257     1.0455   2.033   0.0528 .  
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 2.542 on 26 degrees of freedom
-    ## Multiple R-squared:  4.431e-05,  Adjusted R-squared:  -0.03842 
-    ## F-statistic: 0.001152 on 1 and 26 DF,  p-value: 0.9732
+    ## Residual standard error: 2.401 on 25 degrees of freedom
+    ## Multiple R-squared:  0.1419, Adjusted R-squared:  0.07329 
+    ## F-statistic: 2.068 on 2 and 25 DF,  p-value: 0.1476
 
 In this case, there is no direct causal effect of weight on supercooling
 point. So, even though the two species differ in the average weight,
@@ -841,7 +846,8 @@ dagitty::adjustmentSets(x = dag2, exposure = "SP", outcome = "SCP", effect = "di
     ## { W }
 
 To estimate this causal effect, we need to adjust for weight in our
-model. So, let’s do this.
+model. So, let’s do this (you may have noticed that this is the same
+model as lm2).
 
 ``` r
 # fit the model

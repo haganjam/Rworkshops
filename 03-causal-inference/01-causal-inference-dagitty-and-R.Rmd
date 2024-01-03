@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### Introduction
 
-This tutorial is meant to introduce the basics of using causal inference methodologies in your own research. First, we will learn how to play around with the dagitty web tool that will allow us to create our own Directed Acyclic Graphs (DAGs) (https://dagitty.net/dags.html). Second, we will learn how to transfer our DAGs into R. Third, we will learn how to analyse our DAG in R. By analysing our DAG in R, we will be able to derive testable predictions to check whether our DAG is consistent with the data. Moreover, through this analysis, we will obtain information about the correct statistical models to fit to obtain a given causal estimate. And, we will gain information about how to interpret the coefficients obtained from any given statistical model given the DAG.
+The lecture provided the theoretical background of causal inference. This tutorial is meant to introduce the basics of using causal inference methodologies for use in your own research. First, we will learn how to play around with the dagitty web tool that will allow us to create our own Directed Acyclic Graphs (DAGs) (https://dagitty.net/dags.html). Second, we will learn how to transfer our DAGs into R. Third, we will learn how to analyse our DAG in R. By analysing our DAG in R, we will be able to derive testable predictions to check whether our DAG is consistent with the data. Moreover, through this analysis, we will obtain information about the correct statistical models to fit to obtain a given causal estimate. And, we will gain information about how to interpret the coefficients obtained from any given statistical model given the DAG.
 
 Finally, we will analyse an example dataset of seaweed fly supercooling points.
 
@@ -309,7 +309,7 @@ fly_dat <- readr::read_csv(url("https://raw.githubusercontent.com/haganjam/Rwork
 # check the first few rows of data
 head(fly_dat)
 ```
-So, in this dataset, we have the supercooling point (SCP), the species (P - *C. pilipes*, F - *C. frigida*), the weight of the individual in grams (Weight) and the sex of the individual (Sex). We can ignore the 'Experiment' and 'SCP_ID' columns for the purposes of this tutorial.
+So, in this dataset, we have the supercooling point (SCP), the species (Species: P - *C. pilipes*, F - *C. frigida*), the weight of the individual in grams (Weight) and the sex of the individual (Sex). We can ignore the 'Experiment' and 'SCP_ID' columns for the purposes of this tutorial.
 
 In this dataset, there are only eight female individuals so we will remove these individuals as, there is, in my opinion not enough replication to make inference about them.
 
@@ -350,7 +350,7 @@ As you can see, there is no output! Why? Well, because of how simple this DAG is
 
 Now, we wanted to test whether the species differ in their supercooling points and whether this was due to the species differing in their weights. Okay, so let's do this.
 
-If species differ in their supercooling points because they differ in weight, two things need to be true. First, there needs to be an effect of species on weight (i.e. species need to differ in their weights). Second, weight needs to causally effect the supercooling point. Let's test these.
+If species differ in their supercooling points because they differ in weight, two things need to be true. First, there needs to be an effect of species on weight (i.e. species need to differ in their weights). Second, weight needs to causally affect the supercooling point. Let's test these.
 
 *Is there an effect of species on weight?*
 
@@ -400,7 +400,7 @@ To estimate this causal effect, we need to adjust for species in our models. So 
 
 ```{r}
 # fit the model
-lm2 <- lm(SCP ~ Weight, data = fly_dat)
+lm2 <- lm(SCP ~ Weight + Species, data = fly_dat)
 
 # check assumptions before interpreting the results: they look fine
 plot(lm2)
@@ -424,7 +424,7 @@ Let's ask dagitty how to estimate this causal effect.
 dagitty::adjustmentSets(x = dag2, exposure = "SP", outcome = "SCP", effect = "direct")
 ```
 
-To estimate this causal effect, we need to adjust for weight in our model. So, let's do this.
+To estimate this causal effect, we need to adjust for weight in our model. So, let's do this (you may have noticed that this is the same model as lm2).
 
 ```{r}
 # fit the model
