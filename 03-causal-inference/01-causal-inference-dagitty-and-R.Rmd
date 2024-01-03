@@ -296,6 +296,30 @@ So, direct and total causal effects are both valid and interesting. Deciding whi
 
 ### Example dataset: Supercooling points in coexisting seaweed flies
 
+We want to know whether there are differences between the super-cooling points of the two species and whether this effect is due to species differing in weight.
+
+```{r}
+# load the seaweed fly data from github
+fly_dat <- readr::read_csv(url("https://raw.githubusercontent.com/haganjam/Rworkshops/main/03-causal-inference/data/seaweed-flies.csv"))
+```
+
+```{r}
+dag1 <- dagitty::dagitty(x = 'dag{
+bb="0,0,1,1"
+SCP [outcome,pos="0.494,0.342"]
+SEX [adjusted,pos="0.432,0.494"]
+SP [exposure,pos="0.417,0.195"]
+W [pos="0.363,0.347"]
+SEX -> SCP
+SEX -> W
+SP -> SCP
+SP -> W
+W -> SCP
+}'
+)
+plot(dag1)
+```
+
 
 ### Conclusions
 
