@@ -1,8 +1,8 @@
 ---
-title: "Data wrangling in R"
+title: "Data wrangling and visualisation in R"
 author: "James G. Hagan"
 date: "`r Sys.Date()`"
-output: html_document
+output: rmarkdown::github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -108,10 +108,10 @@ Now that we’ve created a vector object in R and executed a function on this ob
 
 ```{r}
 # dataframe example:
-df <- tibble(var0 = LETTERS[1:10], 
-             var1 = rnorm(n = 10, mean = 5, sd = 3),
-             var2 = rbinom(n = 10, size = 5, prob = 0.5),
-             var3 = runif(n = 10, min = 0, max = 1))
+df <- dplyr::tibble(var0 = LETTERS[1:10], 
+                    var1 = rnorm(n = 10, mean = 5, sd = 3),
+                    var2 = rbinom(n = 10, size = 5, prob = 0.5),
+                    var3 = runif(n = 10, min = 0, max = 1))
 
 # run the object we just created to display it
 df
