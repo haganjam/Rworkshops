@@ -138,17 +138,16 @@ plot(xi_s, yi_s, ylab = "Seal weight (kg)", xlab = "Number of fish eaten")
 ![](01-linear-model-assumptions_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 We can now fit a linear regression model to these sample data and try to
-estimate the population-level parameters that we simulated
-(i.e. $\beta_0$ and $\beta_1$). A linear regression model takes the
-following form:
+estimate the population-level parameters that we simulated ($\beta_0$
+and $\beta_1$). A linear regression model takes the following form:
 
 $$
 y_i = b_0 + b_1x_i + e_i
 $$
 
 Here, the $b_0$ and $b_1$ are estimates of the population-level
-parameters (i.e. $\beta_0$ and $\beta_1$) and the $e_i$ values are the
-model residuals i.e. the difference between the observed $y_i$ and the
+parameters ($\beta_0$ and $\beta_1$) and the $e_i$ values are the model
+residuals i.e. the difference between the observed $y_i$ and the
 predicted value which is $\hat{y_i}$
 
 Let’s fit this model using R’s built-in *lm()* function which uses
@@ -246,9 +245,9 @@ linear model assumptions?”. A fair point. Admittedly, this has been a
 pretty long build-up. However, it is important because for the P-values
 and confidence intervals we just looked at to be valid (i.e. to do what
 they are supposed to do), we need to make some assumptions about the
-error term in the population-level regression (i.e. $\epsilon$). When we
-test assumptions, we are effectively trying to verify certain features
-of this error term ($\epsilon$) which then allows us to make valid
+error term in the population-level regression ($\epsilon$). When we test
+assumptions, we are effectively trying to verify certain features of
+this error term ($\epsilon$) which then allows us to make valid
 inferences based on P-values and confidence intervals. If this is
 confusing, don’t worry! We are going to simulate all of this and it will
 hopefully become clearer.
@@ -475,7 +474,7 @@ y_i = b_0 + b_1x_i + e_i
 $$
 
 As described previously, the $b_0$ and $b_1$ are estimates of the
-population-level parameters (i.e. $\beta_0$ and $\beta_1$) and the $e_i$
+population-level parameters ($\beta_0$ and $\beta_1$) and the $e_i$
 values are the model residuals i.e. the difference between the observed
 $y_i$ and the predicted value which is $\hat{y_i}$
 

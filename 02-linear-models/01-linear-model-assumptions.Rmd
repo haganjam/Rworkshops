@@ -80,13 +80,13 @@ plot(xi_s, yi_s, ylab = "Seal weight (kg)", xlab = "Number of fish eaten")
 
 ```
 
-We can now fit a linear regression model to these sample data and try to estimate the population-level parameters that we simulated (i.e. $\beta_0$ and $\beta_1$). A linear regression model takes the following form:
+We can now fit a linear regression model to these sample data and try to estimate the population-level parameters that we simulated ($\beta_0$ and $\beta_1$). A linear regression model takes the following form:
 
 $$
 y_i = b_0 + b_1x_i + e_i
 $$
 
-Here, the $b_0$ and $b_1$ are estimates of the population-level parameters (i.e. $\beta_0$ and $\beta_1$) and the $e_i$ values are the model residuals i.e. the difference between the observed $y_i$ and the predicted value which is $\hat{y_i}$
+Here, the $b_0$ and $b_1$ are estimates of the population-level parameters ($\beta_0$ and $\beta_1$) and the $e_i$ values are the model residuals i.e. the difference between the observed $y_i$ and the predicted value which is $\hat{y_i}$
 
 Let's fit this model using R's built-in *lm()* function which uses ordinary least squares:
 
@@ -119,7 +119,7 @@ confint(lm1)
 
 So, as we can see, the 95% confidence interval is a range representing the uncertainty in our parameter estimates for $b_0$ and $b_1$. How to properly interpret a confidence interval is not very straightforward. I'm sure you've heard some phrase like: "there is a 95% probability that the true parameter value is within this confidence interval". This is not strictly true. The proper interpretation of a confidence interval is as follows. Imagine we could redo our study 1000 times i.e. and take 100 seals from the population 1000 separate times and each time estimate the 95% confidence interval for the two parameters. What the confidence interval says is that, in 950 out of 1000 (i.e. 95%) of those studies, the calculated confidence intervals would contain the true parameter values.
 
-You're probably thinking: "what does this have to do with checking linear model assumptions?". A fair point. Admittedly, this has been a pretty long build-up. However, it is important because for the P-values and confidence intervals we just looked at to be valid (i.e. to do what they are supposed to do), we need to make some assumptions about the error term in the population-level regression (i.e. $\epsilon$). When we test assumptions, we are effectively trying to verify certain features of this error term ($\epsilon$) which then allows us to make valid inferences based on P-values and confidence intervals. If this is confusing, don't worry! We are going to simulate all of this and it will hopefully become clearer.
+You're probably thinking: "what does this have to do with checking linear model assumptions?". A fair point. Admittedly, this has been a pretty long build-up. However, it is important because for the P-values and confidence intervals we just looked at to be valid (i.e. to do what they are supposed to do), we need to make some assumptions about the error term in the population-level regression ($\epsilon$). When we test assumptions, we are effectively trying to verify certain features of this error term ($\epsilon$) which then allows us to make valid inferences based on P-values and confidence intervals. If this is confusing, don't worry! We are going to simulate all of this and it will hopefully become clearer.
 
 ### What are the assumptions of linear regression and why do we need them?
 
@@ -270,7 +270,7 @@ $$
 y_i = b_0 + b_1x_i + e_i
 $$
 
-As described previously, the $b_0$ and $b_1$ are estimates of the population-level parameters (i.e. $\beta_0$ and $\beta_1$) and the $e_i$ values are the model residuals i.e. the difference between the observed $y_i$ and the predicted value which is $\hat{y_i}$
+As described previously, the $b_0$ and $b_1$ are estimates of the population-level parameters ($\beta_0$ and $\beta_1$) and the $e_i$ values are the model residuals i.e. the difference between the observed $y_i$ and the predicted value which is $\hat{y_i}$
 
 You can imagine that the residuals ($e_i$) from our sample might contain some information about the error term in the population ($\epsilon$). Therefore, the standard way to check linear model assumptions is to graphically analyse the residuals to see if they look like they come from a population where the error term ($\epsilon$) is in fact normally distributed with constant variance.
 
