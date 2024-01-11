@@ -1,7 +1,7 @@
 Linear model assumptions
 ================
 James G. Hagan
-2024-01-03
+2024-01-11
 
 ### Checking the assumptions of a linear model
 

@@ -85,6 +85,7 @@ We can now fit a linear regression model to these sample data and try to estimat
 $$
 y_i = b_0 + b_1x_i + e_i
 $$
+
 Here, the $b_0$ and $b_1$ are estimates of the population-level parameters (i.e. $\beta_0$ and $\beta_1$) and the $e_i$ values are the model residuals i.e. the difference between the observed $y_i$ and the predicted value which is $\hat{y_i}$
 
 Let's fit this model using R's built-in *lm()* function which uses ordinary least squares:
@@ -101,7 +102,7 @@ As we can see from the above output, the $b_0$ (i.e. Intercept) and $b_1$ (i.e. 
 
 If we look a bit further at the output of this model, we get two more pieces of information that are probably relatively familiar to most people: P-values and confidence intervals.
 
-First, when we use the *summary()* function on an *lm()* object, we get statistical tests of the null hypothesis that the estimate parameters $b_0$ and $b_1$ are zero. If the P-value is less than 0.05 (purely from statistical convention), then we reject the null hypothesis and we say that parameters are different from zero. Let's look at this output for this model:
+First, when we use the *summary()* function on an *lm()* object, we get statistical tests of the null hypothesis that the estimated parameters $b_0$ and $b_1$ are zero. If the P-value is less than 0.05 (purely from statistical convention), then we reject the null hypothesis and we say that parameters are different from zero. Let's look at this output for this model:
 
 ```{r}
 # check the summary output
@@ -115,6 +116,7 @@ We can also check the confidence intervals around these parameters. We usually c
 # check the confidence intervals around b0 and b1
 confint(lm1)
 ```
+
 So, as we can see, the 95% confidence interval is a range representing the uncertainty in our parameter estimates for $b_0$ and $b_1$. How to properly interpret a confidence interval is not very straightforward. I'm sure you've heard some phrase like: "there is a 95% probability that the true parameter value is within this confidence interval". This is not strictly true. The proper interpretation of a confidence interval is as follows. Imagine we could redo our study 1000 times i.e. and take 100 seals from the population 1000 separate times and each time estimate the 95% confidence interval for the two parameters. What the confidence interval says is that, in 950 out of 1000 (i.e. 95%) of those studies, the calculated confidence intervals would contain the true parameter values.
 
 You're probably thinking: "what does this have to do with checking linear model assumptions?". A fair point. Admittedly, this has been a pretty long build-up. However, it is important because for the P-values and confidence intervals we just looked at to be valid (i.e. to do what they are supposed to do), we need to make some assumptions about the error term in the population-level regression (i.e. $\epsilon$). When we test assumptions, we are effectively trying to verify certain features of this error term ($\epsilon$) which then allows us to make valid inferences based on P-values and confidence intervals. If this is confusing, don't worry! We are going to simulate all of this and it will hopefully become clearer.
@@ -127,7 +129,8 @@ $$
 y_i = \beta_0 + \beta_1x_i + \epsilon_i \\
 \epsilon_i \sim Normal(0, \sigma^2)
 $$
-So what this says is that we have to make the assumption that the error term ($\epsilon_i$) is normally distributed around 0 which is the first assumption. We also have to assume that the variance ($\sigma^2$) is constant and therefore does not change depending on the value of $x_i$. We can see this from the above equation becaues there is only one ($\sigma^2$). There is a third assumption which is that the individual errors ($\epsilon_i$) are independent.
+
+So what this says is that we have to make the assumption that the error term ($\epsilon_i$) is normally distributed around 0 which is the first assumption. We also have to assume that the variance ($\sigma^2$) is constant and therefore does not change depending on the value of $x_i$. We can see this from the above equation because there is only one ($\sigma^2$). There is a third assumption which is that the individual errors ($\epsilon_i$) are independent.
 
 When these assumptions are met, our P-values and confidence intervals are valid. Let's use simulations to prove this to ourselves. We're going to focus on the confidence intervals because it is easier to illustrate. A valid confidence interval means that if we could perform a study 1000 times, the 95% confidence interval of an estimated parameter would contain the true population-level parameter in 950 of those 1000 studies (i.e. 95%)
 
@@ -205,7 +208,7 @@ The consequence of this which is easily seen when plotting $y_i$ and $x_i$ is th
 plot(yi ~ xi)
 ```
 
-Given that we know we have violated two out of the three assumptions about the error term ($\epsilon_i$), we would not expect our confidence intervals to perform as well as in the previous simulation. Let's see if this is indeed the case. To do this, we do the same thing as previously: take a random sample of seals from the population of 10 000 seals, fit the linear model, calculate the confidence intervals for the $b_0$ and $b_1$ parameters and check whether the population-level parameters $\beta_0$ and $\beta_1$ are within those confidence intervals. Do this 1000 times.
+Given that we know we have violated two out of the three assumptions about the error term ($\epsilon_i$), we would not expect our confidence intervals to perform as well as in the previous simulation. Let's see if this is indeed the case. To do this, we do the same thing as previously: take a random sample of 100 seals from the population of 10 000 seals, fit the linear model, calculate the confidence intervals for the $b_0$ and $b_1$ parameters and check whether the population-level parameters $\beta_0$ and $\beta_1$ are within those confidence intervals. Do this 1000 times.
 
 ```{r}
 # set-up the number of studies
@@ -271,7 +274,7 @@ As described previously, the $b_0$ and $b_1$ are estimates of the population-lev
 
 You can imagine that the residuals ($e_i$) from our sample might contain some information about the error term in the population ($\epsilon$). Therefore, the standard way to check linear model assumptions is to graphically analyse the residuals to see if they look like they come from a population where the error term ($\epsilon$) is in fact normally distributed with constant variance.
 
-How do we do this?
+How do we do this? Well, one of the first things that we can do is check if the residuals are normally distributed. Why does this work?
 
 *to be continued*
 
