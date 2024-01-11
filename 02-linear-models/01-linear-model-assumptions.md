@@ -144,7 +144,9 @@ following form:
 
 $$
 y_i = b_0 + b_1x_i + e_i
-$$ Here, the $b_0$ and $b_1$ are estimates of the population-level
+$$
+
+Here, the $b_0$ and $b_1$ are estimates of the population-level
 parameters (i.e. $\beta_0$ and $\beta_1$) and the $e_i$ values are the
 model residuals i.e. the difference between the observed $y_i$ and the
 predicted value which is $\hat{y_i}$
@@ -178,7 +180,7 @@ pieces of information that are probably relatively familiar to most
 people: P-values and confidence intervals.
 
 First, when we use the *summary()* function on an *lm()* object, we get
-statistical tests of the null hypothesis that the estimate parameters
+statistical tests of the null hypothesis that the estimated parameters
 $b_0$ and $b_1$ are zero. If the P-value is less than 0.05 (purely from
 statistical convention), then we reject the null hypothesis and we say
 that parameters are different from zero. Let’s look at this output for
@@ -259,11 +261,13 @@ assumptions that we need to make about the error term ($\epsilon$).
 $$
 y_i = \beta_0 + \beta_1x_i + \epsilon_i \\
 \epsilon_i \sim Normal(0, \sigma^2)
-$$ So what this says is that we have to make the assumption that the
-error term ($\epsilon_i$) is normally distributed around 0 which is the
-first assumption. We also have to assume that the variance ($\sigma^2$)
-is constant and therefore does not change depending on the value of
-$x_i$. We can see this from the above equation becaues there is only one
+$$
+
+So what this says is that we have to make the assumption that the error
+term ($\epsilon_i$) is normally distributed around 0 which is the first
+assumption. We also have to assume that the variance ($\sigma^2$) is
+constant and therefore does not change depending on the value of $x_i$.
+We can see this from the above equation because there is only one
 ($\sigma^2$). There is a third assumption which is that the individual
 errors ($\epsilon_i$) are independent.
 
@@ -384,9 +388,9 @@ Given that we know we have violated two out of the three assumptions
 about the error term ($\epsilon_i$), we would not expect our confidence
 intervals to perform as well as in the previous simulation. Let’s see if
 this is indeed the case. To do this, we do the same thing as previously:
-take a random sample of seals from the population of 10 000 seals, fit
-the linear model, calculate the confidence intervals for the $b_0$ and
-$b_1$ parameters and check whether the population-level parameters
+take a random sample of 100 seals from the population of 10 000 seals,
+fit the linear model, calculate the confidence intervals for the $b_0$
+and $b_1$ parameters and check whether the population-level parameters
 $\beta_0$ and $\beta_1$ are within those confidence intervals. Do this
 1000 times.
 
@@ -482,6 +486,7 @@ graphically analyse the residuals to see if they look like they come
 from a population where the error term ($\epsilon$) is in fact normally
 distributed with constant variance.
 
-How do we do this?
+How do we do this? Well, one of the first things that we can do is check
+if the residuals are normally distributed. Why does this work?
 
 *to be continued*
